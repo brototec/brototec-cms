@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Broto CMS — Arquitetura Técnica</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Sora:wght@300;400;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2128;
+  --border: #30363d;
+  --border2: #21262d;
+  --verde: #3fb950;
+  --verde-dim: #238636;
+  --verde-glow: rgba(63,185,80,0.15);
+  --verde-claro: #7ee787;
+  --azul: #58a6ff;
+  --azul-dim: #1f6feb;
+  --laranja: #f0883e;
+  --roxo: #bc8cff;
+  --vermelho: #ff7b72;
+  --amarelo: #e3b341;
+  --texto: #e6edf3;
+  --texto2: #8b949e;
+  --texto3: #6e7681;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--texto);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* LAYOUT */
+.layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border2);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 1.5rem 0;
+}
+
+.sidebar-logo {
+  padding: 0 1.5rem 1.5rem;
+  border-bottom: 1px solid var(--border2);
+  margin-bottom: 1rem;
+}
+
+.sidebar-logo .brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--verde);
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.sidebar-logo .version {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--texto3);
+  margin-top: 0.2rem;
+}
+
+.nav-group {
+  margin-bottom: 0.5rem;
+}
+
+.nav-group-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--texto3);
+  padding: 0.5rem 1.5rem 0.3rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1.5rem;
+  color: var(--texto2);
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+}
+
+.nav-item:hover {
+  color: var(--texto);
+  background: rgba(255,255,255,0.03);
+}
+
+.nav-item.active {
+  color: var(--verde-claro);
+  border-left-color: var(--verde);
+  background: var(--verde-glow);
+}
+
+.nav-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--texto3);
+  flex-shrink: 0;
+}
+
+.nav-item.active .nav-dot { background: var(--verde); }
+
+/* MAIN */
+.main {
+  overflow-x: hidden;
+}
+
+/* HEADER TOP */
+.top-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border2);
+  padding: 1rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.top-bar-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--texto3);
+  letter-spacing: 0.05em;
+}
+
+.top-bar-badges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2rem;
+  letter-spacing: 0.05em;
+}
+
+.badge-verde { background: rgba(63,185,80,0.15); color: var(--verde-claro); border: 1px solid rgba(63,185,80,0.3); }
+.badge-azul { background: rgba(88,166,255,0.1); color: var(--azul); border: 1px solid rgba(88,166,255,0.2); }
+.badge-laranja { background: rgba(240,136,62,0.1); color: var(--laranja); border: 1px solid rgba(240,136,62,0.2); }
+
+/* CONTENT */
+.content {
+  padding: 3rem;
+  max-width: 900px;
+}
+
+/* SECTIONS */
+section {
+  margin-bottom: 5rem;
+  scroll-margin-top: 4rem;
+}
+
+.section-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--verde);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border2);
+  max-width: 3rem;
+}
+
+h1.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.2rem;
+  color: var(--texto);
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+h2.section-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--texto);
+  margin-bottom: 1rem;
+}
+
+h3.subsection {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--azul);
+  margin: 2rem 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+h3.subsection::before {
+  content: '//';
+  color: var(--texto3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.lead {
+  font-size: 1rem;
+  color: var(--texto2);
+  line-height: 1.75;
+  max-width: 700px;
+  margin-bottom: 2rem;
+}
+
+p {
+  color: var(--texto2);
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+
+/* CALLOUT */
+.callout {
+  border: 1px solid;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.callout-verde { border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.05); }
+.callout-azul { border-color: rgba(88,166,255,0.3); background: rgba(88,166,255,0.05); }
+.callout-laranja { border-color: rgba(240,136,62,0.3); background: rgba(240,136,62,0.05); }
+.callout-roxo { border-color: rgba(188,140,255,0.3); background: rgba(188,140,255,0.05); }
+
+.callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+.callout-body { font-size: 0.85rem; line-height: 1.65; color: var(--texto2); }
+.callout-body strong { color: var(--texto); display: block; margin-bottom: 0.2rem; }
+
+/* CODE BLOCK */
+.code-block {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+
+.code-header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border2);
+  padding: 0.6rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code-filename {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--texto2);
+}
+
+.code-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--texto3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.code-body {
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+}
+
+.code-body pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--texto);
+  white-space: pre;
+}
+
+.c-verde { color: var(--verde-claro); }
+.c-azul { color: var(--azul); }
+.c-laranja { color: var(--laranja); }
+.c-roxo { color: var(--roxo); }
+.c-vermelho { color: var(--vermelho); }
+.c-amarelo { color: var(--amarelo); }
+.c-dim { color: var(--texto3); }
+
+/* FOLDER TREE */
+.tree {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 2;
+  margin: 1.5rem 0;
+}
+
+.tree-line { display: flex; align-items: baseline; gap: 0.4rem; }
+.t-folder { color: var(--azul); }
+.t-file { color: var(--texto2); }
+.t-comment { color: var(--texto3); font-size: 0.7rem; }
+.t-special { color: var(--verde-claro); }
+.t-indent1 { padding-left: 1.2rem; }
+.t-indent2 { padding-left: 2.4rem; }
+.t-indent3 { padding-left: 3.6rem; }
+.t-indent4 { padding-left: 4.8rem; }
+
+/* STACK TABLE */
+.stack-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.82rem;
+}
+
+.stack-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--texto3);
+  text-align: left;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+
+.stack-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border2);
+  color: var(--texto2);
+  vertical-align: top;
+}
+
+.stack-table tr:last-child td { border-bottom: none; }
+.stack-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.stack-table td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--azul);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.stack-table td:nth-child(2) { color: var(--texto); }
+
+/* PHASE CARDS */
+.phases {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.phase {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border2);
+}
+
+.phase-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--texto3);
+  flex-shrink: 0;
+}
+
+.phase-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--texto);
+}
+
+.phase-time {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--verde);
+  background: var(--verde-glow);
+  border: 1px solid rgba(63,185,80,0.2);
+  padding: 0.2rem 0.6rem;
+  border-radius: 2rem;
+}
+
+.phase-body {
+  padding: 1.25rem 1.5rem;
+}
+
+.phase-tasks {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.phase-tasks li {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--texto2);
+  align-items: flex-start;
+}
+
+.phase-tasks li::before {
+  content: '▸';
+  color: var(--verde);
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.phase-tasks li span.cmd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.25rem;
+  color: var(--laranja);
+  white-space: nowrap;
+}
+
+/* COLLECTIONS GRID */
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.collection-card {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  background: var(--bg3);
+  transition: border-color 0.2s;
+}
+
+.collection-card:hover { border-color: var(--verde-dim); }
+
+.collection-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--verde-claro);
+  margin-bottom: 0.3rem;
+}
+
+.collection-desc {
+  font-size: 0.78rem;
+  color: var(--texto3);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.collection-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.field-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--texto3);
+  border: 1px solid var(--border2);
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.25rem;
+}
+
+/* INFRA TIERS */
+.tiers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.tier {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  background: var(--bg3);
+  position: relative;
+}
+
+.tier-fase {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.tier-1 .tier-fase { color: var(--verde); }
+.tier-2 .tier-fase { color: var(--amarelo); }
+.tier-3 .tier-fase { color: var(--laranja); }
+
+.tier h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--texto);
+  margin-bottom: 0.25rem;
+}
+
+.tier-custo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.tier-1 .tier-custo { color: var(--verde); }
+.tier-2 .tier-custo { color: var(--amarelo); }
+.tier-3 .tier-custo { color: var(--laranja); }
+
+.tier-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tier-items li {
+  font-size: 0.75rem;
+  color: var(--texto2);
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.tier-items li::before {
+  content: '·';
+  color: var(--texto3);
+  flex-shrink: 0;
+}
+
+/* DIVIDER */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border2);
+  margin: 3rem 0;
+}
+
+/* INLINE CODE */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 0.1em 0.4em;
+  border-radius: 0.25rem;
+  color: var(--laranja);
+}
+
+/* DECISION LIST */
+.decision-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.decision {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 0.75rem 1rem;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.decision-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--texto3);
+}
+
+.decision-value { color: var(--texto); }
+.decision-value strong { color: var(--verde-claro); }
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.content > section {
+  animation: fadeIn 0.5s ease both;
+}
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .content { padding: 1.5rem; }
+  .collections-grid, .tiers { grid-template-columns: 1fr; }
+  .decision { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR NAV -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">broto-cms</div>
+    <div class="version">arquitetura v1.0 · 2025</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Visão geral</div>
+    <a class="nav-item active" href="#overview"><span class="nav-dot"></span>O que estamos construindo</a>
+    <a class="nav-item" href="#stack"><span class="nav-dot"></span>Stack de decisões</a>
+    <a class="nav-item" href="#principios"><span class="nav-dot"></span>Princípios técnicos</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Arquitetura</div>
+    <a class="nav-item" href="#estrutura"><span class="nav-dot"></span>Estrutura de pastas</a>
+    <a class="nav-item" href="#collections"><span class="nav-dot"></span>Collections do CMS</a>
+    <a class="nav-item" href="#temas"><span class="nav-dot"></span>Sistema de temas</a>
+    <a class="nav-item" href="#api"><span class="nav-dot"></span>Camada de API</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Implementação</div>
+    <a class="nav-item" href="#fase0"><span class="nav-dot"></span>Fase 0 — Setup</a>
+    <a class="nav-item" href="#fase1"><span class="nav-dot"></span>Fase 1 — MVP</a>
+    <a class="nav-item" href="#fase2"><span class="nav-dot"></span>Fase 2 — Produto</a>
+    <a class="nav-item" href="#fase3"><span class="nav-dot"></span>Fase 3 — Escala</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Infraestrutura</div>
+    <a class="nav-item" href="#infra"><span class="nav-dot"></span>Free → VPS</a>
+    <a class="nav-item" href="#env"><span class="nav-dot"></span>Variáveis de ambiente</a>
+    <a class="nav-item" href="#deploy"><span class="nav-dot"></span>Deploy pipeline</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Referência</div>
+    <a class="nav-item" href="#codigo"><span class="nav-dot"></span>Código de referência</a>
+    <a class="nav-item" href="#bloqueios"><span class="nav-dot"></span>Bloqueios comuns</a>
+    <a class="nav-item" href="#proximos"><span class="nav-dot"></span>Próximos passos</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <div class="top-bar">
+    <div class="top-bar-title">brototec / broto-cms / ARQUITETURA.md</div>
+    <div class="top-bar-badges">
+      <span class="badge badge-verde">Next.js 15</span>
+      <span class="badge badge-azul">Payload CMS v3</span>
+      <span class="badge badge-laranja">PostgreSQL</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <section id="overview">
+      <div class="section-eyebrow">01 — visão geral</div>
+      <h1 class="section-title">O que estamos construindo</h1>
+      <p class="lead">
+        O Broto CMS é uma plataforma de produto da Brototec — não apenas um CMS para clientes, mas uma infraestrutura que serve tanto sites institucionais quanto sistemas customizados, tudo no mesmo ecossistema técnico.
+      </p>
+
+      <div class="callout callout-verde">
+        <div class="callout-icon">🌱</div>
+        <div class="callout-body">
+          <strong>A ideia central</strong>
+          Um monorepo com Next.js + Payload CMS rodando juntos. O front-end consome a API do Payload. Clientes editam pelo painel do Broto CMS. Você cria temas em código e pluga no sistema como Drupal faz com themes.
+        </div>
+      </div>
+
+      <h3 class="subsection">O produto serve dois mercados</h3>
+
+      <div class="decision-list">
+        <div class="decision">
+          <div class="decision-label">Mercado 1</div>
+          <div class="decision-value"><strong>Sites e landing pages</strong> — clientes que querem autonomia para editar conteúdo via Broto CMS, sem depender de dev.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Mercado 2</div>
+          <div class="decision-value"><strong>Sistemas customizados</strong> — CRUDs completos para operações internas, painéis de gestão, plataformas específicas de negócio.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Núcleo comum</div>
+          <div class="decision-value"><strong>A mesma stack</strong> — Payload cuida da base de dados, auth, upload e API. O front Next.js consome tudo. Só muda o "tema" e as collections.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STACK -->
+    <section id="stack">
+      <div class="section-eyebrow">02 — stack</div>
+      <h2 class="section-title">Decisões técnicas e por quê</h2>
+
+      <table class="stack-table">
+        <thead>
+          <tr>
+            <th>Tecnologia</th>
+            <th>Papel</th>
+            <th>Por que esta escolha</th>
+            <th>Alternativa descartada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Next.js 15</td>
+            <td>Framework full-stack</td>
+            <td>App Router, RSC, SSR, API Routes — tudo incluso. Você já conhece React.</td>
+            <td>Remix (menos ecossistema)</td>
+          </tr>
+          <tr>
+            <td>Payload CMS v3</td>
+            <td>CMS + Admin + API</td>
+            <td>Roda dentro do Next.js. TypeScript nativo. Collections em código. Open source.</td>
+            <td>Strapi (mais pesado, menos TS)</td>
+          </tr>
+          <tr>
+            <td>TypeScript</td>
+            <td>Linguagem</td>
+            <td>Tipos compartilhados entre CMS e front. Menos bug. Você já usa no front.</td>
+            <td>JavaScript puro (sem segurança)</td>
+          </tr>
+          <tr>
+            <td>PostgreSQL</td>
+            <td>Banco de dados</td>
+            <td>Robusto, relacional, suportado pelo Payload nativamente. Escala real.</td>
+            <td>MongoDB (menos estruturado)</td>
+          </tr>
+          <tr>
+            <td>Tailwind CSS v4</td>
+            <td>Estilização</td>
+            <td>Você já domina. Funciona perfeitamente com Next.js e Server Components.</td>
+            <td>Styled Components (runtime CSS)</td>
+          </tr>
+          <tr>
+            <td>Neon / Supabase</td>
+            <td>Postgres na nuvem (free)</td>
+            <td>Postgres gerenciado grátis para começar. Migra pra VPS quando crescer.</td>
+            <td>PlanetScale (não é Postgres)</td>
+          </tr>
+          <tr>
+            <td>Vercel</td>
+            <td>Deploy (free tier)</td>
+            <td>Deploy automático por push. Domínio grátis. Zero config com Next.js.</td>
+            <td>Netlify (menos integrado)</td>
+          </tr>
+          <tr>
+            <td>Uploadthing / S3</td>
+            <td>Upload de arquivos</td>
+            <td>Payload tem adapter nativo. Uploadthing é grátis para começar.</td>
+            <td>Cloudinary (vendor lock-in)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-azul">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <strong>Sobre Node.js vs Python</strong>
+          Como front-end com experiência em JS/TS, Node.js é a escolha certa. Você não aprende uma nova linguagem — aprende um novo contexto. Os tipos TypeScript são compartilhados entre o Payload (backend) e o Next.js (front). Isso vale ouro.
+        </div>
+      </div>
+    </section>
+
+    <!-- PRINCÍPIOS -->
+    <section id="principios">
+      <div class="section-eyebrow">03 — princípios</div>
+      <h2 class="section-title">Princípios técnicos do Broto CMS</h2>
+
+      <div class="decision-list">
+        <div class="decision">
+          <div class="decision-label">Collections em código</div>
+          <div class="decision-value">Cada tipo de conteúdo é definido em TypeScript. Versionado no git. Nunca num banco de dados opaco.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Temas modulares</div>
+          <div class="decision-value">Um tema é uma pasta com componentes React + config. Plugável como Drupal/WordPress. Clientes trocam de tema sem perder conteúdo.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">API-first</div>
+          <div class="decision-value">Todo conteúdo exposto via REST API automática do Payload. Front consome via fetch. Amanhã pode virar app mobile sem reescrever backend.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Zero lock-in</div>
+          <div class="decision-value">Código do cliente é do cliente. Self-hosted. Sem dependência de plataforma fechada. Coerência com a filosofia da Brototec.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Monorepo único</div>
+          <div class="decision-value">CMS + front + admin no mesmo repositório. Tipos compartilhados. Deploy único. Menos complexidade operacional.</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ESTRUTURA DE PASTAS -->
+    <section id="estrutura">
+      <div class="section-eyebrow">04 — arquitetura</div>
+      <h2 class="section-title">Estrutura de pastas do monorepo</h2>
+
+      <p>O Payload v3 roda <em>dentro</em> do Next.js — não são dois servidores separados. Um único repositório, um único deploy.</p>
+
+      <div class="tree">
+        <div class="tree-line"><span class="t-folder">broto-cms/</span> <span class="t-comment">— raiz do projeto</span></div>
+        <div class="tree-line t-indent1"><span class="t-folder">src/</span></div>
+
+        <div class="tree-line t-indent2"><span class="t-folder">app/</span> <span class="t-comment">— Next.js App Router</span></div>
+        <div class="tree-line t-indent3"><span class="t-folder">(frontend)/</span> <span class="t-comment">— rotas públicas do site</span></div>
+        <div class="tree-line t-indent4"><span class="t-file">page.tsx</span> <span class="t-comment">— home</span></div>
+        <div class="tree-line t-indent4"><span class="t-folder">[slug]/</span></div>
+        <div class="tree-line t-indent4"><span class="t-file">layout.tsx</span></div>
+        <div class="tree-line t-indent3"><span class="t-folder">(payload)/</span> <span class="t-comment">— rotas do admin Payload</span></div>
+        <div class="tree-line t-indent4"><span class="t-file">admin/[[...segments]]/page.tsx</span></div>
+        <div class="tree-line t-indent3"><span class="t-folder">api/</span> <span class="t-comment">— Next.js API Routes</span></div>
+        <div class="tree-line t-indent4"><span class="t-special">payload/[...slug]/route.ts</span> <span class="t-comment">— REST API automática</span></div>
+
+        <div class="tree-line t-indent2"><span class="t-folder">collections/</span> <span class="t-comment">— tipos de conteúdo em código</span></div>
+        <div class="tree-line t-indent3"><span class="t-special">Pages.ts</span> <span class="t-comment">— páginas do site</span></div>
+        <div class="tree-line t-indent3"><span class="t-special">Posts.ts</span> <span class="t-comment">— blog/notícias</span></div>
+        <div class="tree-line t-indent3"><span class="t-special">Media.ts</span> <span class="t-comment">— upload de arquivos</span></div>
+        <div class="tree-line t-indent3"><span class="t-special">Users.ts</span> <span class="t-comment">— auth e roles</span></div>
+        <div class="tree-line t-indent3"><span class="t-special">Forms.ts</span> <span class="t-comment">— formulários dinâmicos</span></div>
+        <div class="tree-line t-indent3"><span class="t-special">Settings.ts</span> <span class="t-comment">— config global do site</span></div>
+
+        <div class="tree-line t-indent2"><span class="t-folder">globals/</span> <span class="t-comment">— dados singleton (nav, footer)</span></div>
+        <div class="tree-line t-indent3"><span class="t-file">Header.ts</span></div>
+        <div class="tree-line t-indent3"><span class="t-file">Footer.ts</span></div>
+
+        <div class="tree-line t-indent2"><span class="t-folder">blocks/</span> <span class="t-comment">— blocos reutilizáveis de conteúdo</span></div>
+        <div class="tree-line t-indent3"><span class="t-file">HeroBlock.ts</span></div>
+        <div class="tree-line t-indent3"><span class="t-file">ContentBlock.ts</span></div>
+        <div class="tree-line t-indent3"><span class="t-file">CTABlock.ts</span></div>
+        <div class="tree-line t-indent3"><span class="t-file">MediaBlock.ts</span></div>
+
+        <div class="tree-line t-indent2"><span class="t-folder">themes/</span> <span class="t-comment">— sistema de temas modulares</span></div>
+        <div class="tree-line t-indent3"><span class="t-folder">broto-default/</span> <span class="t-comment">— tema padrão Brototec</span></div>
+        <div class="tree-line t-indent4"><span class="t-file">components/</span></div>
+        <div class="tree-line t-indent4"><span class="t-file">styles/</span></div>
+        <div class="tree-line t-indent4"><span class="t-special">theme.config.ts</span></div>
+        <div class="tree-line t-indent3"><span class="t-folder">broto-minimal/</span> <span class="t-comment">— variante minimalista</span></div>
+        <div class="tree-line t-indent3"><span class="t-folder">[client-theme]/</span> <span class="t-comment">— tema por cliente</span></div>
+
+        <div class="tree-line t-indent2"><span class="t-folder">components/</span> <span class="t-comment">— componentes compartilhados</span></div>
+        <div class="tree-line t-indent2"><span class="t-folder">lib/</span> <span class="t-comment">— utilitários e helpers</span></div>
+        <div class="tree-line t-indent3"><span class="t-file">payload.ts</span> <span class="t-comment">— cliente Payload</span></div>
+        <div class="tree-line t-indent3"><span class="t-file">queries.ts</span> <span class="t-comment">— queries reutilizáveis</span></div>
+
+        <div class="tree-line t-indent2"><span class="t-special">payload.config.ts</span> <span class="t-comment">— configuração central do CMS</span></div>
+
+        <div class="tree-line t-indent1"><span class="t-file">next.config.ts</span></div>
+        <div class="tree-line t-indent1"><span class="t-file">tailwind.config.ts</span></div>
+        <div class="tree-line t-indent1"><span class="t-file">.env.local</span> <span class="t-comment">— nunca commitado</span></div>
+        <div class="tree-line t-indent1"><span class="t-file">package.json</span></div>
+      </div>
+
+      <div class="callout callout-roxo">
+        <div class="callout-icon">🔑</div>
+        <div class="callout-body">
+          <strong>Por que um monorepo?</strong>
+          Com Payload v3, o CMS é uma rota do Next.js — não um servidor separado. Isso significa um deploy, um repositório, tipos TypeScript compartilhados entre CMS e front, e zero latência entre a API e o front.
+        </div>
+      </div>
+    </section>
+
+    <!-- COLLECTIONS -->
+    <section id="collections">
+      <div class="section-eyebrow">05 — collections</div>
+      <h2 class="section-title">Collections do Broto CMS</h2>
+      <p>Collections são os tipos de conteúdo do seu CMS. Definidos em TypeScript, versionados no git, aparecem automaticamente no painel admin.</p>
+
+      <div class="collections-grid">
+        <div class="collection-card">
+          <div class="collection-name">Pages</div>
+          <div class="collection-desc">Páginas do site com layout por blocos. Slug automático, SEO nativo.</div>
+          <div class="collection-fields">
+            <span class="field-tag">title</span>
+            <span class="field-tag">slug</span>
+            <span class="field-tag">layout[] (blocks)</span>
+            <span class="field-tag">meta</span>
+            <span class="field-tag">status</span>
+          </div>
+        </div>
+        <div class="collection-card">
+          <div class="collection-name">Posts</div>
+          <div class="collection-desc">Blog, notícias, cases. Com autor, categorias e rich text.</div>
+          <div class="collection-fields">
+            <span class="field-tag">title</span>
+            <span class="field-tag">content (rich text)</span>
+            <span class="field-tag">author</span>
+            <span class="field-tag">categories</span>
+            <span class="field-tag">featuredImage</span>
+            <span class="field-tag">publishedAt</span>
+          </div>
+        </div>
+        <div class="collection-card">
+          <div class="collection-name">Media</div>
+          <div class="collection-desc">Upload centralizado com resize automático e alt text.</div>
+          <div class="collection-fields">
+            <span class="field-tag">filename</span>
+            <span class="field-tag">mimeType</span>
+            <span class="field-tag">alt</span>
+            <span class="field-tag">sizes (auto)</span>
+          </div>
+        </div>
+        <div class="collection-card">
+          <div class="collection-name">Users</div>
+          <div class="collection-desc">Auth nativo do Payload. Roles: admin, editor, viewer.</div>
+          <div class="collection-fields">
+            <span class="field-tag">email</span>
+            <span class="field-tag">password (hashed)</span>
+            <span class="field-tag">role</span>
+            <span class="field-tag">name</span>
+          </div>
+        </div>
+        <div class="collection-card">
+          <div class="collection-name">Forms</div>
+          <div class="collection-desc">Formulários dinâmicos com campos configuráveis pelo admin.</div>
+          <div class="collection-fields">
+            <span class="field-tag">title</span>
+            <span class="field-tag">fields[]</span>
+            <span class="field-tag">submitLabel</span>
+            <span class="field-tag">redirect</span>
+          </div>
+        </div>
+        <div class="collection-card">
+          <div class="collection-name">FormSubmissions</div>
+          <div class="collection-desc">Respostas dos formulários, vinculadas ao form original.</div>
+          <div class="collection-fields">
+            <span class="field-tag">form (relation)</span>
+            <span class="field-tag">submissionData[]</span>
+            <span class="field-tag">createdAt</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="subsection">Para sistemas customizados — collections extras</h3>
+      <p>Quando o projeto é um sistema (não apenas um site), você adiciona collections de negócio:</p>
+
+      <div class="collections-grid">
+        <div class="collection-card">
+          <div class="collection-name">Products / Services</div>
+          <div class="collection-desc">Catálogo de produtos ou serviços com preços, variantes e imagens.</div>
+          <div class="collection-fields">
+            <span class="field-tag">name</span>
+            <span class="field-tag">price</span>
+            <span class="field-tag">variants[]</span>
+            <span class="field-tag">images[]</span>
+            <span class="field-tag">category</span>
+          </div>
+        </div>
+        <div class="collection-card">
+          <div class="collection-name">Orders / Records</div>
+          <div class="collection-desc">CRUD de registros operacionais — pedidos, contratos, agendamentos.</div>
+          <div class="collection-fields">
+            <span class="field-tag">reference</span>
+            <span class="field-tag">status</span>
+            <span class="field-tag">customer</span>
+            <span class="field-tag">items[]</span>
+            <span class="field-tag">total</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMAS -->
+    <section id="temas">
+      <div class="section-eyebrow">06 — temas</div>
+      <h2 class="section-title">Sistema de temas modulares</h2>
+      <p>Como o Drupal ou WordPress, um "tema" no Broto CMS é uma pasta autocontida com seus componentes React e configuração. O conteúdo vive no banco — o tema só decide como renderizar.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">src/themes/broto-default/theme.config.ts</span>
+          <span class="code-lang">typescript</span>
+        </div>
+        <div class="code-body"><pre><span class="c-dim">// Configuração do tema — exporta componentes para cada bloco</span>
+<span class="c-roxo">import</span> <span class="c-azul">type</span> { ThemeConfig } <span class="c-roxo">from</span> <span class="c-verde">'@/lib/theme-types'</span>
+
+<span class="c-roxo">import</span> { HeroBlock } <span class="c-roxo">from</span> <span class="c-verde">'./components/HeroBlock'</span>
+<span class="c-roxo">import</span> { ContentBlock } <span class="c-roxo">from</span> <span class="c-verde">'./components/ContentBlock'</span>
+<span class="c-roxo">import</span> { CTABlock } <span class="c-roxo">from</span> <span class="c-verde">'./components/CTABlock'</span>
+<span class="c-roxo">import</span> { Header } <span class="c-roxo">from</span> <span class="c-verde">'./components/Header'</span>
+<span class="c-roxo">import</span> { Footer } <span class="c-roxo">from</span> <span class="c-verde">'./components/Footer'</span>
+
+<span class="c-roxo">export const</span> <span class="c-azul">theme</span>: ThemeConfig = {
+  <span class="c-laranja">name</span>: <span class="c-verde">'broto-default'</span>,
+  <span class="c-laranja">version</span>: <span class="c-verde">'1.0.0'</span>,
+  
+  <span class="c-dim">// Layout global</span>
+  <span class="c-laranja">layout</span>: { Header, Footer },
+  
+  <span class="c-dim">// Mapa bloco → componente React</span>
+  <span class="c-laranja">blocks</span>: {
+    hero: HeroBlock,
+    content: ContentBlock,
+    cta: CTABlock,
+  },
+  
+  <span class="c-dim">// Fontes e tokens de design</span>
+  <span class="c-laranja">fonts</span>: [<span class="c-verde">'Sora'</span>, <span class="c-verde">'JetBrains Mono'</span>],
+  <span class="c-laranja">tokens</span>: {
+    <span class="c-laranja">primary</span>: <span class="c-verde">'#7ab648'</span>,
+    <span class="c-laranja">background</span>: <span class="c-verde">'#f5f0e8'</span>,
+  }
+}</pre></div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">src/app/(frontend)/[slug]/page.tsx</span>
+          <span class="code-lang">typescript</span>
+        </div>
+        <div class="code-body"><pre><span class="c-dim">// Renderizador dinâmico de páginas — tema plugável</span>
+<span class="c-roxo">import</span> { getPayloadClient } <span class="c-roxo">from</span> <span class="c-verde">'@/lib/payload'</span>
+<span class="c-roxo">import</span> { theme } <span class="c-roxo">from</span> <span class="c-verde">'@/themes/broto-default/theme.config'</span>
+
+<span class="c-roxo">export default async function</span> <span class="c-azul">Page</span>({ params }) {
+  <span class="c-roxo">const</span> payload = <span class="c-roxo">await</span> getPayloadClient()
+  
+  <span class="c-roxo">const</span> page = <span class="c-roxo">await</span> payload.find({
+    <span class="c-laranja">collection</span>: <span class="c-verde">'pages'</span>,
+    <span class="c-laranja">where</span>: { slug: { equals: params.slug } }
+  })
+  
+  <span class="c-dim">// Renderiza cada bloco com o componente do tema ativo</span>
+  <span class="c-roxo">return</span> (
+    &lt;<span class="c-azul">div</span>&gt;
+      {page.docs[0].layout.<span class="c-azul">map</span>((block) =&gt; {
+        <span class="c-roxo">const</span> Block = theme.blocks[block.blockType]
+        <span class="c-roxo">return</span> &lt;<span class="c-azul">Block</span> key={block.id} {...block} /&gt;
+      })}
+    &lt;/<span class="c-azul">div</span>&gt;
+  )
+}</pre></div>
+      </div>
+
+      <div class="callout callout-verde">
+        <div class="callout-icon">🎨</div>
+        <div class="callout-body">
+          <strong>Como criar um tema para um cliente</strong>
+          Duplica a pasta <code>broto-default</code>, renomeia para <code>cliente-nome</code>, ajusta cores/fontes/componentes. O conteúdo no banco não muda — só a apresentação visual. Você entrega o tema como parte do projeto.
+        </div>
+      </div>
+    </section>
+
+    <!-- API -->
+    <section id="api">
+      <div class="section-eyebrow">07 — api</div>
+      <h2 class="section-title">Camada de API</h2>
+      <p>O Payload gera automaticamente uma REST API completa para cada collection. Você não escreve endpoints CRUD — eles existem por padrão.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">REST API automática — exemplos de uso</span>
+          <span class="code-lang">http</span>
+        </div>
+        <div class="code-body"><pre><span class="c-dim"># Listar páginas publicadas</span>
+<span class="c-verde">GET</span>  /api/pages?where[status][equals]=published
+
+<span class="c-dim"># Buscar página por slug</span>
+<span class="c-verde">GET</span>  /api/pages?where[slug][equals]=sobre
+
+<span class="c-dim"># Criar novo post (autenticado)</span>
+<span class="c-azul">POST</span> /api/posts
+     Authorization: Bearer {token}
+     Content-Type: application/json
+
+<span class="c-dim"># Upload de mídia</span>
+<span class="c-azul">POST</span> /api/media
+     Content-Type: multipart/form-data
+
+<span class="c-dim"># Login e obter token</span>
+<span class="c-azul">POST</span> /api/users/login
+     { "email": "...", "password": "..." }
+
+<span class="c-dim"># Endpoint customizado (você cria quando precisar)</span>
+<span class="c-verde">GET</span>  /api/custom/dashboard-metrics</pre></div>
+      </div>
+
+      <div class="callout callout-azul">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-body">
+          <strong>Local API — zero latência no Next.js</strong>
+          Dentro do Next.js, você chama <code>payload.find()</code> diretamente — sem HTTP. É uma chamada de função, não uma requisição de rede. Isso torna o SSR extremamente rápido.
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- FASES DE IMPLEMENTAÇÃO -->
+    <section id="fase0">
+      <div class="section-eyebrow">08 — implementação</div>
+      <h2 class="section-title">Roteiro de implementação</h2>
+      <p class="lead">Ordem de aprendizado e construção — do setup inicial ao produto Brototec em produção.</p>
+
+      <div class="phases">
+
+        <div class="phase" id="fase0-card">
+          <div class="phase-header">
+            <span class="phase-num">FASE 0</span>
+            <span class="phase-title">Setup do ambiente</span>
+            <span class="phase-time">~2h</span>
+          </div>
+          <div class="phase-body">
+            <ul class="phase-tasks">
+              <li>Instalar Node.js LTS (v20+) e pnpm: <span class="cmd">npm install -g pnpm</span></li>
+              <li>Criar projeto com CLI do Payload: <span class="cmd">npx create-payload-app@latest broto-cms</span></li>
+              <li>Escolher template: <strong>website</strong> → Next.js → TypeScript → PostgreSQL</li>
+              <li>Criar banco Postgres gratuito no <strong>Neon.tech</strong> (5GB free, sem cartão)</li>
+              <li>Configurar <code>.env.local</code> com a string de conexão do Neon</li>
+              <li>Rodar localmente: <span class="cmd">pnpm dev</span> → acessar <code>localhost:3000/admin</code></li>
+              <li>Criar usuário admin e explorar o painel gerado</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase" id="fase1-card">
+          <div class="phase-header">
+            <span class="phase-num">FASE 1</span>
+            <span class="phase-title">MVP — primeiro site com CMS</span>
+            <span class="phase-time">~1 semana</span>
+          </div>
+          <div class="phase-body">
+            <ul class="phase-tasks">
+              <li>Estudar o arquivo <code>payload.config.ts</code> gerado — entender a estrutura</li>
+              <li>Criar collection <code>Pages</code> com campos: title, slug, status, layout (blocks)</li>
+              <li>Criar collection <code>Media</code> para uploads</li>
+              <li>Criar collection <code>Users</code> com roles (admin / editor)</li>
+              <li>Criar 3 blocos básicos: HeroBlock, ContentBlock, CTABlock</li>
+              <li>Criar rota dinâmica <code>/[slug]/page.tsx</code> que renderiza os blocos</li>
+              <li>Estilizar com Tailwind — criar o tema <code>broto-default</code></li>
+              <li>Testar criação de página pelo admin e visualizar no front</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase" id="fase2-card">
+          <div class="phase-header">
+            <span class="phase-num">FASE 2</span>
+            <span class="phase-title">Produto — Broto CMS completo</span>
+            <span class="phase-time">~2 semanas</span>
+          </div>
+          <div class="phase-body">
+            <ul class="phase-tasks">
+              <li>Adicionar Globals: Header e Footer editáveis pelo admin</li>
+              <li>Criar collection <code>Posts</code> com rich text (Lexical nativo do Payload)</li>
+              <li>Configurar SEO por página (title, description, og:image)</li>
+              <li>Implementar sistema de temas — extrair <code>theme.config.ts</code></li>
+              <li>Criar collection <code>Forms</code> + <code>FormSubmissions</code> para formulários dinâmicos</li>
+              <li>Configurar upload de mídia com Uploadthing (grátis)</li>
+              <li>Customizar visual do painel admin para virar Broto CMS (logo, cores)</li>
+              <li>Deploy no Vercel — conectar ao Neon Postgres</li>
+              <li><strong>Primeiro cliente real:</strong> usar este projeto como base</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase" id="fase3-card">
+          <div class="phase-header">
+            <span class="phase-num">FASE 3</span>
+            <span class="phase-title">Escala — sistemas + VPS</span>
+            <span class="phase-time">conforme cresce</span>
+          </div>
+          <div class="phase-body">
+            <ul class="phase-tasks">
+              <li>Criar collections de negócio para sistemas (Products, Orders, etc.)</li>
+              <li>Implementar multi-tenant — um CMS, múltiplos clientes isolados</li>
+              <li>Migrar banco do Neon para PostgreSQL próprio no VPS (Hetzner ~€5/mês)</li>
+              <li>Configurar CI/CD: GitHub Actions → deploy automático no VPS</li>
+              <li>Adicionar Redis para cache de queries frequentes</li>
+              <li>Criar CLI interno: <span class="cmd">broto new [nome-cliente]</span> que gera projeto base</li>
+              <li>Documentar processo de criação de tema para novos devs</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- INFRA -->
+    <section id="infra">
+      <div class="section-eyebrow">09 — infraestrutura</div>
+      <h2 class="section-title">Free → VPS: o caminho de escala</h2>
+      <p>Começa sem gastar nada. Migra sem reescrever nada. A stack é a mesma nos três estágios.</p>
+
+      <div class="tiers">
+        <div class="tier tier-1">
+          <div class="tier-fase">estágio 01 — agora</div>
+          <h4>Free Tier</h4>
+          <div class="tier-custo">R$ 0/mês</div>
+          <ul class="tier-items">
+            <li>Vercel (deploy + CDN)</li>
+            <li>Neon.tech (Postgres 5GB)</li>
+            <li>Uploadthing (2GB storage)</li>
+            <li>GitHub (repositório)</li>
+            <li>Domínio: vercel.app ou próprio</li>
+          </ul>
+        </div>
+        <div class="tier tier-2">
+          <div class="tier-fase">estágio 02 — primeiros clientes</div>
+          <h4>Hybrid</h4>
+          <div class="tier-custo">~R$ 50/mês</div>
+          <ul class="tier-items">
+            <li>Vercel Pro ou Railway</li>
+            <li>Neon Pro (mais conexões)</li>
+            <li>Cloudflare R2 (storage barato)</li>
+            <li>Domínios dos clientes</li>
+            <li>Backups automáticos</li>
+          </ul>
+        </div>
+        <div class="tier tier-3">
+          <div class="tier-fase">estágio 03 — produto maduro</div>
+          <h4>Self-hosted VPS</h4>
+          <div class="tier-custo">~R$ 120/mês</div>
+          <ul class="tier-items">
+            <li>Hetzner CX21 (€5/mês)</li>
+            <li>PostgreSQL próprio</li>
+            <li>Nginx reverse proxy</li>
+            <li>PM2 para processos Node</li>
+            <li>Coolify para deploy (grátis)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-laranja">
+        <div class="callout-icon">🔄</div>
+        <div class="callout-body">
+          <strong>Migração Free → VPS sem dor</strong>
+          Como o banco é PostgreSQL padrão nos dois casos, a migração é um <code>pg_dump</code> + <code>pg_restore</code>. O código não muda. Só a string de conexão no <code>.env</code> muda.
+        </div>
+      </div>
+    </section>
+
+    <!-- ENV -->
+    <section id="env">
+      <div class="section-eyebrow">10 — configuração</div>
+      <h2 class="section-title">Variáveis de ambiente</h2>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">.env.local</span>
+          <span class="code-lang">env</span>
+        </div>
+        <div class="code-body"><pre><span class="c-dim"># ─── PAYLOAD CMS ──────────────────────────────</span>
+<span class="c-azul">PAYLOAD_SECRET</span>=<span class="c-verde">sua-chave-secreta-longa-aqui-min-32-chars</span>
+
+<span class="c-dim"># ─── BANCO DE DADOS ───────────────────────────</span>
+<span class="c-dim"># Neon.tech (free) → copiar da dashboard do Neon</span>
+<span class="c-azul">DATABASE_URI</span>=<span class="c-verde">postgresql://user:pass@ep-xxx.neon.tech/broto-cms?sslmode=require</span>
+
+<span class="c-dim"># ─── NEXT.JS ──────────────────────────────────</span>
+<span class="c-azul">NEXT_PUBLIC_SERVER_URL</span>=<span class="c-verde">http://localhost:3000</span>
+<span class="c-dim"># Em produção: https://seusite.vercel.app</span>
+
+<span class="c-dim"># ─── UPLOAD (Uploadthing) ─────────────────────</span>
+<span class="c-azul">UPLOADTHING_SECRET</span>=<span class="c-verde">sk_live_xxx</span>
+<span class="c-azul">UPLOADTHING_APP_ID</span>=<span class="c-verde">xxx</span>
+
+<span class="c-dim"># ─── EMAIL (Resend — free 100/dia) ────────────</span>
+<span class="c-azul">RESEND_API_KEY</span>=<span class="c-verde">re_xxx</span></pre></div>
+      </div>
+    </section>
+
+    <!-- CÓDIGO REFERÊNCIA -->
+    <section id="codigo">
+      <div class="section-eyebrow">11 — código</div>
+      <h2 class="section-title">Código de referência</h2>
+
+      <h3 class="subsection">Collection básica — Pages</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">src/collections/Pages.ts</span>
+          <span class="code-lang">typescript</span>
+        </div>
+        <div class="code-body"><pre><span class="c-roxo">import</span> <span class="c-azul">type</span> { CollectionConfig } <span class="c-roxo">from</span> <span class="c-verde">'payload'</span>
+
+<span class="c-roxo">export const</span> <span class="c-azul">Pages</span>: CollectionConfig = {
+  <span class="c-laranja">slug</span>: <span class="c-verde">'pages'</span>,
+  <span class="c-laranja">admin</span>: {
+    <span class="c-laranja">useAsTitle</span>: <span class="c-verde">'title'</span>,
+    <span class="c-laranja">defaultColumns</span>: [<span class="c-verde">'title'</span>, <span class="c-verde">'slug'</span>, <span class="c-verde">'status'</span>, <span class="c-verde">'updatedAt'</span>],
+  },
+  <span class="c-laranja">access</span>: {
+    <span class="c-laranja">read</span>: () => <span class="c-roxo">true</span>, <span class="c-dim">// público</span>
+  },
+  <span class="c-laranja">fields</span>: [
+    {
+      <span class="c-laranja">name</span>: <span class="c-verde">'title'</span>,
+      <span class="c-laranja">type</span>: <span class="c-verde">'text'</span>,
+      <span class="c-laranja">required</span>: <span class="c-roxo">true</span>,
+    },
+    {
+      <span class="c-laranja">name</span>: <span class="c-verde">'slug'</span>,
+      <span class="c-laranja">type</span>: <span class="c-verde">'text'</span>,
+      <span class="c-laranja">required</span>: <span class="c-roxo">true</span>,
+      <span class="c-laranja">unique</span>: <span class="c-roxo">true</span>,
+      <span class="c-laranja">admin</span>: { position: <span class="c-verde">'sidebar'</span> },
+    },
+    {
+      <span class="c-laranja">name</span>: <span class="c-verde">'layout'</span>,
+      <span class="c-laranja">type</span>: <span class="c-verde">'blocks'</span>, <span class="c-dim">// campo de blocos — coração do page builder</span>
+      <span class="c-laranja">blocks</span>: [], <span class="c-dim">// importar HeroBlock, ContentBlock, etc.</span>
+    },
+    {
+      <span class="c-laranja">name</span>: <span class="c-verde">'status'</span>,
+      <span class="c-laranja">type</span>: <span class="c-verde">'select'</span>,
+      <span class="c-laranja">options</span>: [<span class="c-verde">'draft'</span>, <span class="c-verde">'published'</span>],
+      <span class="c-laranja">defaultValue</span>: <span class="c-verde">'draft'</span>,
+      <span class="c-laranja">admin</span>: { position: <span class="c-verde">'sidebar'</span> },
+    },
+    {
+      <span class="c-laranja">name</span>: <span class="c-verde">'meta'</span>,
+      <span class="c-laranja">type</span>: <span class="c-verde">'group'</span>,
+      <span class="c-laranja">fields</span>: [
+        { name: <span class="c-verde">'title'</span>, type: <span class="c-verde">'text'</span> },
+        { name: <span class="c-verde">'description'</span>, type: <span class="c-verde">'textarea'</span> },
+        { name: <span class="c-verde">'image'</span>, type: <span class="c-verde">'upload'</span>, relationTo: <span class="c-verde">'media'</span> },
+      ],
+    },
+  ],
+}</pre></div>
+      </div>
+
+      <h3 class="subsection">Bloco de exemplo — HeroBlock</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">src/blocks/HeroBlock.ts</span>
+          <span class="code-lang">typescript</span>
+        </div>
+        <div class="code-body"><pre><span class="c-roxo">import</span> <span class="c-azul">type</span> { Block } <span class="c-roxo">from</span> <span class="c-verde">'payload'</span>
+
+<span class="c-roxo">export const</span> <span class="c-azul">HeroBlock</span>: Block = {
+  <span class="c-laranja">slug</span>: <span class="c-verde">'hero'</span>,
+  <span class="c-laranja">labels</span>: { singular: <span class="c-verde">'Hero'</span>, plural: <span class="c-verde">'Heroes'</span> },
+  <span class="c-laranja">fields</span>: [
+    {
+      <span class="c-laranja">name</span>: <span class="c-verde">'heading'</span>,
+      <span class="c-laranja">type</span>: <span class="c-verde">'text'</span>,
+      <span class="c-laranja">required</span>: <span class="c-roxo">true</span>,
+    },
+    {
+      <span class="c-laranja">name</span>: <span class="c-verde">'subheading'</span>,
+      <span class="c-laranja">type</span>: <span class="c-verde">'textarea'</span>,
+    },
+    {
+      <span class="c-laranja">name</span>: <span class="c-verde">'cta'</span>,
+      <span class="c-laranja">type</span>: <span class="c-verde">'group'</span>,
+      <span class="c-laranja">fields</span>: [
+        { name: <span class="c-verde">'label'</span>, type: <span class="c-verde">'text'</span> },
+        { name: <span class="c-verde">'href'</span>, type: <span class="c-verde">'text'</span> },
+      ]
+    },
+    {
+      <span class="c-laranja">name</span>: <span class="c-verde">'image'</span>,
+      <span class="c-laranja">type</span>: <span class="c-verde">'upload'</span>,
+      <span class="c-laranja">relationTo</span>: <span class="c-verde">'media'</span>,
+    },
+  ],
+}</pre></div>
+      </div>
+
+      <h3 class="subsection">payload.config.ts — configuração central</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">src/payload.config.ts</span>
+          <span class="code-lang">typescript</span>
+        </div>
+        <div class="code-body"><pre><span class="c-roxo">import</span> { buildConfig } <span class="c-roxo">from</span> <span class="c-verde">'payload'</span>
+<span class="c-roxo">import</span> { postgresAdapter } <span class="c-roxo">from</span> <span class="c-verde">'@payloadcms/db-postgres'</span>
+<span class="c-roxo">import</span> { lexicalEditor } <span class="c-roxo">from</span> <span class="c-verde">'@payloadcms/richtext-lexical'</span>
+<span class="c-roxo">import</span> { uploadthingStorage } <span class="c-roxo">from</span> <span class="c-verde">'@payloadcms/storage-uploadthing'</span>
+
+<span class="c-roxo">import</span> { Pages } <span class="c-roxo">from</span> <span class="c-verde">'./collections/Pages'</span>
+<span class="c-roxo">import</span> { Posts } <span class="c-roxo">from</span> <span class="c-verde">'./collections/Posts'</span>
+<span class="c-roxo">import</span> { Media } <span class="c-roxo">from</span> <span class="c-verde">'./collections/Media'</span>
+<span class="c-roxo">import</span> { Users } <span class="c-roxo">from</span> <span class="c-verde">'./collections/Users'</span>
+<span class="c-roxo">import</span> { Header } <span class="c-roxo">from</span> <span class="c-verde">'./globals/Header'</span>
+<span class="c-roxo">import</span> { Footer } <span class="c-roxo">from</span> <span class="c-verde">'./globals/Footer'</span>
+
+<span class="c-roxo">export default</span> buildConfig({
+  <span class="c-laranja">admin</span>: {
+    <span class="c-laranja">user</span>: Users.slug,
+    <span class="c-laranja">meta</span>: {
+      <span class="c-laranja">titleSuffix</span>: <span class="c-verde">'— Broto CMS'</span>,  <span class="c-dim">// sua marca no painel</span>
+    },
+  },
+  <span class="c-laranja">collections</span>: [Pages, Posts, Media, Users],
+  <span class="c-laranja">globals</span>: [Header, Footer],
+  <span class="c-laranja">editor</span>: lexicalEditor({}),
+  <span class="c-laranja">db</span>: postgresAdapter({
+    <span class="c-laranja">pool</span>: { connectionString: process.env.DATABASE_URI }
+  }),
+  <span class="c-laranja">plugins</span>: [
+    uploadthingStorage({
+      <span class="c-laranja">collections</span>: { media: <span class="c-roxo">true</span> },
+      <span class="c-laranja">options</span>: { token: process.env.UPLOADTHING_SECRET },
+    }),
+  ],
+  <span class="c-laranja">secret</span>: process.env.PAYLOAD_SECRET || <span class="c-verde">''</span>,
+  <span class="c-laranja">typescript</span>: { outputFile: <span class="c-verde">'src/payload-types.ts'</span> },
+})</pre></div>
+      </div>
+    </section>
+
+    <!-- BLOQUEIOS COMUNS -->
+    <section id="bloqueios">
+      <div class="section-eyebrow">12 — suporte</div>
+      <h2 class="section-title">Bloqueios comuns e como resolver</h2>
+
+      <div class="decision-list">
+        <div class="decision">
+          <div class="decision-label">Erro de conexão com banco</div>
+          <div class="decision-value">Verifique se <code>DATABASE_URI</code> no <code>.env.local</code> tem <code>?sslmode=require</code> no final. O Neon exige SSL.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Admin não abre</div>
+          <div class="decision-value">Certifique que o arquivo <code>app/(payload)/admin/[[...segments]]/page.tsx</code> existe. É o que roteia para o painel do Payload.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Tipos desatualizados</div>
+          <div class="decision-value">Rode <span style="color:var(--laranja);font-family:'JetBrains Mono',monospace;font-size:0.78em">pnpm payload generate:types</span> sempre que alterar collections. Isso regenera o <code>payload-types.ts</code>.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Imagens não aparecem</div>
+          <div class="decision-value">Configure <code>NEXT_PUBLIC_SERVER_URL</code> corretamente. Em dev: <code>http://localhost:3000</code>. Em prod: sua URL real.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Build falha na Vercel</div>
+          <div class="decision-value">Adicione todas as variáveis de ambiente nas configurações do projeto na Vercel. Elas não sobem junto com o código.</div>
+        </div>
+        <div class="decision">
+          <div class="decision-label">Não sei o que fazer</div>
+          <div class="decision-value">Manda aqui. Resolve junto. Sem julgamento.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRÓXIMOS PASSOS -->
+    <section id="proximos">
+      <div class="section-eyebrow">13 — agora</div>
+      <h2 class="section-title">O que fazer agora — nesta ordem</h2>
+
+      <div class="phases">
+        <div class="phase">
+          <div class="phase-header">
+            <span class="phase-num">PASSO 1</span>
+            <span class="phase-title">Criar o banco grátis no Neon</span>
+            <span class="phase-time">10 min</span>
+          </div>
+          <div class="phase-body">
+            <ul class="phase-tasks">
+              <li>Acesse <strong>neon.tech</strong> → criar conta → novo projeto <code>broto-cms</code></li>
+              <li>Copiar a connection string (começa com <code>postgresql://</code>)</li>
+              <li>Guardar para o próximo passo</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="phase-header">
+            <span class="phase-num">PASSO 2</span>
+            <span class="phase-title">Rodar o CLI do Payload</span>
+            <span class="phase-time">15 min</span>
+          </div>
+          <div class="phase-body">
+            <ul class="phase-tasks">
+              <li>No terminal: <span class="cmd">npx create-payload-app@latest broto-cms</span></li>
+              <li>Selecionar template: <strong>website</strong></li>
+              <li>Selecionar banco: <strong>PostgreSQL</strong></li>
+              <li>Colar a connection string do Neon quando pedir</li>
+              <li>Rodar: <span class="cmd">cd broto-cms && pnpm dev</span></li>
+              <li>Abrir <code>localhost:3000/admin</code> e criar o primeiro usuário</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="phase-header">
+            <span class="phase-num">PASSO 3</span>
+            <span class="phase-title">Explorar e entender a estrutura</span>
+            <span class="phase-time">1h</span>
+          </div>
+          <div class="phase-body">
+            <ul class="phase-tasks">
+              <li>Abrir o projeto no VSCode e explorar cada pasta</li>
+              <li>Ler o <code>payload.config.ts</code> gerado — entender o padrão</li>
+              <li>Criar uma página pelo admin e ver como aparece no front</li>
+              <li>Comparar com esta arquitetura — identificar o que customizar</li>
+              <li>Trazer as dúvidas — a gente resolve junto em tempo real</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-verde">
+        <div class="callout-icon">🌱</div>
+        <div class="callout-body">
+          <strong>Lembra da filosofia Brototec</strong>
+          O Broto CMS é um produto que vai liberar seus clientes — e também vai ser construído com essa mesma liberdade. Código seu, infra sua, arquitetura que você entende. Qualquer bloqueio: traz aqui.
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</main>
+
+</div><!-- /layout -->
+
+<script>
+// Nav ativo baseado no scroll
+const sections = document.querySelectorAll('section[id]')
+const navItems = document.querySelectorAll('.nav-item')
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navItems.forEach(item => {
+        item.classList.remove('active')
+        if (item.getAttribute('href') === '#' + entry.target.id) {
+          item.classList.add('active')
+        }
+      })
+    }
+  })
+}, { rootMargin: '-20% 0px -70% 0px' })
+
+sections.forEach(s => observer.observe(s))
+</script>
+
+</body>
+</html>
