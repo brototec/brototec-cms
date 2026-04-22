@@ -5,6 +5,9 @@ import { CTABlock } from '../blocks/CTABlock'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
+  versions: {
+    drafts: true, // Isso ativa o campo _status automaticamente
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'status', 'updatedAt'],
