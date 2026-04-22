@@ -4,6 +4,10 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+
+import { Header } from './globals/Header'
+import { Footer } from './globals/Footer'
+
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 
@@ -22,6 +26,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
+  globals: [Header, Footer],
   collections: [Users, Media, Pages, Posts],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
