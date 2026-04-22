@@ -2,9 +2,31 @@
 @import "@tailwindcss/typography";
 
 @theme {
-  --font-sans: 'Sora', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* Fontes - Use a Space Grotesk que você mencionou antes ou Sora */
+  --font-sans: 'Space Grotesk', 'Inter', sans-serif;
+  
+  /* Cores da Identidade Broto */
   --color-primary: #7ab648;
-  --color-primary-dark: #4a7c4a;
+  --color-primary-dark: #63943a;
   --color-background: #f5f0e8;
+  --color-neutral-900: #1a1a1a;
+  
+  /* Ajustes de Border Radius para uma vibe startup */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+}
+
+/* Estilização base para garantir o background do Broto */
+@layer base {
+  body {
+    @apply bg-[family-name:--color-background] text-[family-name:--color-neutral-900] antialiased;
+  }
+}
+
+/* Customização do Typography (prose) para o ContentBlock */
+.rich-text {
+  @apply prose prose-neutral max-w-none;
+  --tw-prose-headings: var(--color-neutral-900);
+  --tw-prose-links: var(--color-primary);
+  --tw-prose-bold: var(--color-neutral-900);
 }
