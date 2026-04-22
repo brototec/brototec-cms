@@ -1,290 +1,67 @@
-# 🌱 Broto CMS
+# Payload Blank Template
 
-> **Clone. Configure. Coloque no ar.**  
-> CMS open source para sites e sistemas — front-end, painel admin e API juntos em um único repositório.
+This template comes configured with the bare minimum to get started on anything you need.
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org)
-[![Payload CMS](https://img.shields.io/badge/Payload-v3-1a1a1a?style=flat-square)](https://payloadcms.com)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql&logoColor=white)](https://postgresql.org)
-[![License](https://img.shields.io/badge/license-MIT-7ab648?style=flat-square)](LICENSE)
+## Quick start
 
----
+This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
 
-## 📖 Documentação completa
+## Quick Start - local setup
 
-**→ [brototec.github.io/broto-cms-docs](https://brototec.github.io/broto-cms-docs)**
+To spin up this template locally, follow these steps:
 
-Arquitetura detalhada, sistema de temas, collections, roteiro de implementação e guia de infraestrutura.
+### Clone
 
----
+After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
 
-## Como funciona
+### Development
 
-O Broto CMS funciona como Drupal ou WordPress — você clona o repositório, configura o ambiente e sobe para o cliente. Front-end, painel administrativo e API vivem juntos no mesmo projeto. Cada instalação é independente. O código é do cliente. A infra é do cliente.
+1. First [clone the repo](#clone) if you have not done so already
+2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
 
-```bash
-git clone https://github.com/brototec/broto-cms nome-do-projeto
-cd nome-do-projeto
-cp .env.example .env.local
-# editar .env.local com banco e variáveis
-pnpm install && pnpm dev
-```
+3. `pnpm install && pnpm dev` to install dependencies and start the dev server
+4. open `http://localhost:3000` to open the app in your browser
 
----
+That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
 
-## Para quem é
+#### Docker (Optional)
 
-- **Agências e devs** que entregam sites com painel de edição incluso
-- **Empresas** que querem autonomia para editar o próprio site sem depender de desenvolvedor
-- **Times** que precisam de sistemas internos com CRUD, auth e painel de gestão
+If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
 
----
-
-## Stack
-
-| Tecnologia | Papel |
-|---|---|
-| **Next.js 15** | Framework full-stack — App Router, SSR, Server Components |
-| **Payload CMS v3** | CMS + Admin + REST API automática (roda dentro do Next.js) |
-| **TypeScript** | Tipos compartilhados entre CMS e front-end |
-| **PostgreSQL** | Banco de dados relacional |
-| **Tailwind CSS v4** | Estilização com sistema de temas modulares |
-
----
-
-## Início rápido
-
-### Pré-requisitos
-
-- Node.js v20+
-- pnpm — `npm install -g pnpm`
-- PostgreSQL (local, [Neon.tech](https://neon.tech) grátis, ou VPS)
-
-### 1. Clonar o repositório
-
-```bash
-git clone https://github.com/brototec/broto-cms nome-do-projeto
-cd nome-do-projeto
-```
-
-### 2. Configurar variáveis de ambiente
-
-```bash
-cp .env.example .env.local
-```
-
-Editar `.env.local`:
-
-```env
-# Payload
-PAYLOAD_SECRET=sua-chave-secreta-minimo-32-caracteres
-
-# Banco de dados
-DATABASE_URI=postgresql://usuario:senha@host:5432/nome-do-banco?sslmode=require
-
-# URL do projeto
-NEXT_PUBLIC_SERVER_URL=http://localhost:3000
-
-# Upload de arquivos (Uploadthing — gratuito em uploadthing.com)
-UPLOADTHING_SECRET=sk_live_xxx
-UPLOADTHING_APP_ID=xxx
-```
-
-### 3. Instalar e rodar
-
-```bash
-pnpm install
-pnpm dev
-```
+To do so, follow these steps:
 
-Acessar [localhost:3000/admin](http://localhost:3000/admin) e criar o primeiro usuário administrador.
-
----
-
-## Estrutura do projeto
-
-```
-broto-cms/
-├── src/
-│   ├── app/
-│   │   ├── (frontend)/              # Rotas públicas do site
-│   │   │   ├── page.tsx             # Home
-│   │   │   ├── [slug]/page.tsx      # Páginas dinâmicas
-│   │   │   └── layout.tsx
-│   │   ├── (payload)/               # Painel administrativo
-│   │   │   └── admin/[[...segments]]/page.tsx
-│   │   └── api/
-│   │       └── payload/[...slug]/route.ts   # REST API automática
-│   │
-│   ├── collections/                 # Tipos de conteúdo — definidos em TypeScript
-│   │   ├── Pages.ts                 # Páginas com page builder
-│   │   ├── Posts.ts                 # Blog e conteúdo editorial
-│   │   ├── Media.ts                 # Upload de arquivos
-│   │   ├── Users.ts                 # Autenticação e roles
-│   │   └── Forms.ts                 # Formulários dinâmicos
-│   │
-│   ├── globals/                     # Dados singleton editáveis
-│   │   ├── Header.ts                # Navegação principal
-│   │   └── Footer.ts                # Rodapé
-│   │
-│   ├── blocks/                      # Blocos do page builder
-│   │   ├── HeroBlock.ts
-│   │   ├── ContentBlock.ts
-│   │   ├── CTABlock.ts
-│   │   └── MediaBlock.ts
-│   │
-│   ├── themes/                      # Sistema de temas — um por projeto/cliente
-│   │   └── broto-default/           # Tema base da Brototec
-│   │       ├── components/
-│   │       ├── styles/
-│   │       └── theme.config.ts
-│   │
-│   ├── components/                  # Componentes compartilhados
-│   ├── lib/                         # Utilitários e queries
-│   └── payload.config.ts            # Configuração central do CMS
-│
-├── .env.example
-├── next.config.ts
-├── tailwind.config.ts
-└── package.json
-```
-
----
-
-## Criando o tema do cliente
-
-Cada projeto tem seu próprio tema em `/src/themes/`. Um tema é uma pasta com componentes React e um arquivo de configuração — o conteúdo no banco não muda, só a apresentação visual.
-
-```bash
-# Duplicar o tema base
-cp -r src/themes/broto-default src/themes/nome-do-cliente
-```
-
-Editar `src/themes/nome-do-cliente/theme.config.ts`:
-
-```typescript
-export const theme: ThemeConfig = {
-  name: 'nome-do-cliente',
-  layout: { Header, Footer },
-  blocks: {
-    hero: HeroBlock,
-    content: ContentBlock,
-  },
-  tokens: {
-    primary: '#cor-do-cliente',
-    background: '#fundo',
-  }
-}
-```
-
-Para sistemas customizados, adicione collections de negócio em `/src/collections/` — mesma estrutura, campos específicos para o contexto do cliente.
-
----
-
-## Deploy
-
-### Vercel
-
-Recomendado para a maioria dos projetos — deploy automático via GitHub, CDN global, zero configuração de servidor.
-
-```bash
-npm install -g vercel
-vercel
-```
-
-Configurar no painel da Vercel: `PAYLOAD_SECRET`, `DATABASE_URI`, `NEXT_PUBLIC_SERVER_URL`, `UPLOADTHING_SECRET`, `UPLOADTHING_APP_ID`.
-
-Banco recomendado: [Neon.tech](https://neon.tech) — PostgreSQL gerenciado com free tier.
-
-### VPS
-
-Para projetos que exigem banco próprio, maior controle de dados ou volume maior de acessos.
-
-```bash
-# No servidor (Ubuntu 22.04+)
-git clone https://github.com/brototec/broto-cms /var/www/nome-do-projeto
-cd /var/www/nome-do-projeto
-cp .env.example .env.local
-# editar .env.local com dados do banco local
-pnpm install && pnpm build && pnpm start
-```
-
-Gerenciador de processos recomendado: [PM2](https://pm2.keymetrics.io)  
-Deploy automatizado recomendado: [Coolify](https://coolify.io) — self-hosted e gratuito.
-
-Guia completo de deploy na [documentação](https://brototec.github.io/broto-cms-docs).
-
----
-
-## Infraestrutura
-
-O projeto cresce com o negócio sem reescrever código. A migração entre estágios é só trocar a string de conexão no `.env`.
-
-| Estágio | Onde rodar | Banco | Custo estimado |
-|---|---|---|---|
-| **Início** | Vercel free | Neon free (5GB) | R$ 0/mês |
-| **Crescendo** | Vercel Pro | Neon Pro | ~R$ 50/mês |
-| **Escala** | VPS Hetzner CX21 | PostgreSQL próprio | ~R$ 120/mês |
-
----
-
-## Collections disponíveis
-
-| Collection | Descrição | Uso |
-|---|---|---|
-| `Pages` | Páginas com page builder por blocos | Site |
-| `Posts` | Blog, notícias e conteúdo editorial | Site |
-| `Media` | Upload centralizado com resize automático | Site / Sistema |
-| `Users` | Auth com roles (admin / editor / viewer) | Site / Sistema |
-| `Forms` | Formulários dinâmicos configuráveis | Site |
-| `FormSubmissions` | Respostas dos formulários | Site |
-
----
-
-## Comandos úteis
-
-```bash
-pnpm dev                        # Desenvolvimento local
-pnpm build                      # Build de produção
-pnpm start                      # Rodar em produção
-pnpm payload generate:types     # Regenerar tipos após alterar collections
-pnpm type-check                 # Verificar erros de TypeScript
-```
-
----
-
-## Contribuindo
-
-```bash
-# Fork → branch → commit → Pull Request
-git checkout -b feat/minha-contribuicao
-git commit -m "feat: descrição da mudança"
-```
-
-Padrão de commits: `feat` `fix` `docs` `refactor` `chore`
-
----
-
-## Ecossistema Brototec
-
-| Repositório | Descrição |
-|---|---|
-| [brototec/broto-cms](https://github.com/brototec/broto-cms) | Este repositório — o CMS open source |
-| [brototec/broto-cms-docs](https://github.com/brototec/broto-cms-docs) | Documentação interativa (GitHub Pages) |
-| [brototec/brototec](https://github.com/brototec/brototec) | Site institucional |
-
----
-
-## Licença
-
-MIT — veja [LICENSE](LICENSE).
-
-O código é seu. A infra é sua. Sem dependência de plataforma fechada.
-
----
-
-<p align="center">
-  Feito com intenção por <a href="https://brototec.vercel.app">Brototec</a><br>
-  <em>Sem dependência • Sem complicação • Feito para você evoluir</em>
-</p>
+- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
+- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
+- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+
+## How it works
+
+The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+
+### Collections
+
+See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+
+- #### Users (Authentication)
+
+  Users are auth-enabled collections that have access to the admin panel.
+
+  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+
+- #### Media
+
+  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+
+### Docker
+
+Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+
+1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
+1. Next run `docker-compose up`
+1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+
+That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+
+## Questions
+
+If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
