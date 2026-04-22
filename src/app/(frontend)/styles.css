@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@tailwindcss/typography";
+
+@theme {
+  --font-sans: 'Sora', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-primary: #7ab648;
+  --color-primary-dark: #4a7c4a;
+  --color-background: #f5f0e8;
+}
