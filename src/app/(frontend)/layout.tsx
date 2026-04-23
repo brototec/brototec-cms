@@ -1,18 +1,23 @@
-import React from 'react'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import Navbar from '@/components/layout/Navbar'
+// import Footer from '@/components/layout/Footer'
 import './styles.css'
-
-export const metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
-}
-
-export default async function RootLayout(props: { children: React.ReactNode }) {
-  const { children } = props
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const payload = await getPayload({ config })
+  
+  // Busca os dados globais do CMS
+  const headerData = await payload.findGlobal({ slug: 'header' })
+  const footerData = await payload.findGlobal({ slug: 'footer' })
 
   return (
-    <html lang="en">
-      <body>
-        <main>{children}</main>
+    <html lang="pt-br">
+      <body className="antialiased bg-[#f5f0e8]">
+        <Navbar data={headerData} />
+        <main className="pt-16">
+          {children}
+        </main>
+        {/* <Footer data={footerData} /> */}
       </body>
     </html>
   )
