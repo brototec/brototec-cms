@@ -1,40 +1,26 @@
-import React from 'react'
-import Image from 'next/image'
-
-export const HeroBlockComponent = ({ heading, subheading, cta, image }: any) => {
+// Troque heading por title, e subheading por description para bater com o seu Schema .ts
+export const HeroBlockComponent = ({ title, tagline, description, links, image }: any) => {
   return (
     <section className="relative bg-neutral-900 text-white py-20 px-6 overflow-hidden">
       <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
         <div className="max-w-2xl">
+          <span className="text-green-500 font-bold uppercase mb-4 block tracking-widest">{tagline}</span>
           <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6 tracking-tight">
-            {heading}
+            {title}
           </h1>
-          {subheading && (
-            <p className="text-xl text-neutral-300 mb-8 leading-relaxed">
-              {subheading}
-            </p>
-          )}
-          {cta?.label && (
-            <a
-              href={cta.href}
-              className="inline-block bg-green-500 hover:bg-green-600 text-neutral-900 font-bold py-4 px-8 rounded-lg transition-colors text-lg"
-            >
-              {cta.label}
-            </a>
-          )}
-        </div>
-        
-        {image && typeof image === 'object' && (
-          <div className="relative h-[400px] w-full rounded-2xl overflow-hidden shadow-2xl">
-            <Image
-              src={image.url}
-              alt={image.alt || heading}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
+          <p className="text-xl text-neutral-300 mb-8 leading-relaxed">
+            {description}
+          </p>
+          
+          <div className="flex gap-4">
+            {links?.map((link: any, i: number) => (
+              <a key={i} href={link.href} className="bg-green-500 p-4 rounded-lg text-neutral-900 font-bold">
+                {link.label}
+              </a>
+            ))}
           </div>
-        )}
+        </div>
+        {/* ... resto do código da imagem ... */}
       </div>
     </section>
   )

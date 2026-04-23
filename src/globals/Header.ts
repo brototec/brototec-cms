@@ -4,14 +4,16 @@ export const Header: GlobalConfig = {
   slug: 'header',
   access: { read: () => true },
   fields: [
-    { name: 'logo', type: 'upload', relationTo: 'media' },
     {
-      name: 'nav',
+      name: 'navItems',
       type: 'array',
+      maxRows: 6,
       fields: [
         { name: 'label', type: 'text', required: true },
         { name: 'href', type: 'text', required: true },
       ],
     },
+    { name: 'ctaLabel', type: 'text', defaultValue: 'Plantar Ideia' },
+    { name: 'ctaHref', type: 'text', defaultValue: '/contato' },
   ],
 }
