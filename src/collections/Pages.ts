@@ -1,16 +1,19 @@
 import type { CollectionConfig } from 'payload'
-import { HeroBlock } from '../blocks/HeroBlock'
-import { ContentBlock } from '../blocks/ContentBlock'
-import { CTABlock } from '../blocks/CTABlock'
+// Caminho real baseado na sua árvore de arquivos:
+import { HeroBlock } from '../components/blocks/HeroBlock'
+import { ContentBlock } from '../components/blocks/ContentBlock'
+import { CTABlock } from '../components/blocks/CTABlock'
+import { DifferentiationBlock } from '../components/blocks/Differentiation'
+import { ConceptBlock } from '../components/blocks/Concept'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
   versions: {
-    drafts: true, // Isso ativa o campo _status automaticamente
+    drafts: true,
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'status', 'updatedAt'],
+    defaultColumns: ['title', 'slug', '_status', 'updatedAt'], // Use _status para drafts
   },
   access: {
     read: () => true,
@@ -28,23 +31,19 @@ export const Pages: CollectionConfig = {
       unique: true,
       admin: {
         position: 'sidebar',
-        description: 'URL da página — ex: sobre, contato',
-      },
-    },
-    {
-      name: 'status',
-      type: 'select',
-      options: ['draft', 'published'],
-      defaultValue: 'draft',
-      required: true,
-      admin: {
-        position: 'sidebar',
       },
     },
     {
       name: 'layout',
       type: 'blocks',
-      blocks: [HeroBlock, ContentBlock, CTABlock],
+      // Adicionamos os novos blocos da Brototec aqui
+      blocks: [
+        HeroBlock, 
+        ContentBlock, 
+        CTABlock, 
+        DifferentiationBlock, 
+        ConceptBlock
+      ],
     },
     {
       name: 'meta',
@@ -52,16 +51,8 @@ export const Pages: CollectionConfig = {
       label: 'SEO',
       admin: { position: 'sidebar' },
       fields: [
-        {
-          name: 'title',
-          type: 'text',
-          label: 'Meta title',
-        },
-        {
-          name: 'description',
-          type: 'textarea',
-          label: 'Meta description',
-        },
+        { name: 'title', type: 'text' },
+        { name: 'description', type: 'textarea' },
       ],
     },
   ],

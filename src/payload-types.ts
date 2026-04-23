@@ -178,21 +178,23 @@ export interface Media {
 export interface Page {
   id: number;
   title: string;
-  /**
-   * URL da página — ex: sobre, contato
-   */
   slug: string;
-  status: 'draft' | 'published';
   layout?:
     | (
         | {
-            heading: string;
-            subheading?: string | null;
-            cta?: {
-              label?: string | null;
-              href?: string | null;
-            };
-            image?: (number | null) | Media;
+            tagline?: string | null;
+            title: string;
+            highlightedText?: string | null;
+            description?: string | null;
+            links?:
+              | {
+                  label: string;
+                  href: string;
+                  appearance?: ('primary' | 'secondary') | null;
+                  id?: string | null;
+                }[]
+              | null;
+            image: number | Media;
             id?: string | null;
             blockName?: string | null;
             blockType: 'hero';
@@ -228,6 +230,35 @@ export interface Page {
             id?: string | null;
             blockName?: string | null;
             blockType: 'cta';
+          }
+        | {
+            tagline?: string | null;
+            title: string;
+            steps?:
+              | {
+                  num?: string | null;
+                  title?: string | null;
+                  description?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'differentiation';
+          }
+        | {
+            tagline?: string | null;
+            title: string;
+            items?:
+              | {
+                  num?: string | null;
+                  text?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'concept';
           }
       )[]
     | null;
@@ -398,20 +429,23 @@ export interface MediaSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  status?: T;
   layout?:
     | T
     | {
         hero?:
           | T
           | {
-              heading?: T;
-              subheading?: T;
-              cta?:
+              tagline?: T;
+              title?: T;
+              highlightedText?: T;
+              description?: T;
+              links?:
                 | T
                 | {
                     label?: T;
                     href?: T;
+                    appearance?: T;
+                    id?: T;
                   };
               image?: T;
               id?: T;
@@ -435,6 +469,37 @@ export interface PagesSelect<T extends boolean = true> {
                     label?: T;
                     href?: T;
                     variant?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        differentiation?:
+          | T
+          | {
+              tagline?: T;
+              title?: T;
+              steps?:
+                | T
+                | {
+                    num?: T;
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        concept?:
+          | T
+          | {
+              tagline?: T;
+              title?: T;
+              items?:
+                | T
+                | {
+                    num?: T;
+                    text?: T;
+                    id?: T;
                   };
               id?: T;
               blockName?: T;
@@ -511,14 +576,15 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Header {
   id: number;
-  logo?: (number | null) | Media;
-  nav?:
+  navItems?:
     | {
         label: string;
         href: string;
         id?: string | null;
       }[]
     | null;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -528,14 +594,12 @@ export interface Header {
  */
 export interface Footer {
   id: number;
-  tagline?: string | null;
-  links?:
-    | {
-        label?: string | null;
-        href?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  description?: string | null;
+  socialLinks?: {
+    instagram?: string | null;
+    linkedin?: string | null;
+    whatsapp?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -544,14 +608,15 @@ export interface Footer {
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
-  logo?: T;
-  nav?:
+  navItems?:
     | T
     | {
         label?: T;
         href?: T;
         id?: T;
       };
+  ctaLabel?: T;
+  ctaHref?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -561,13 +626,13 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
-  tagline?: T;
-  links?:
+  description?: T;
+  socialLinks?:
     | T
     | {
-        label?: T;
-        href?: T;
-        id?: T;
+        instagram?: T;
+        linkedin?: T;
+        whatsapp?: T;
       };
   updatedAt?: T;
   createdAt?: T;
