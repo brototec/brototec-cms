@@ -13,11 +13,12 @@ export const Pages: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', '_status', 'updatedAt'], // Use _status para drafts
-    preview: (doc) => {
-      return `${process.env.NEXT_PUBLIC_SERVER_URL}/api/preview?url=${encodeURIComponent(
-        `/${doc.slug === 'home' ? '' : doc.slug}`
-      )}&secret=${process.env.PAYLOAD_PREVIEW_SECRET}`
+    defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
+    // Atualizado para o padrão Payload 3.0 que recebe locale e token
+    preview: (doc, { locale, token }) => {
+      const slug = doc?.slug || 'home'
+      // Construção da URL de preview com todos os parâmetros necessários
+      return `${process.env.NEXT_PUBLIC_SERVER_URL}/api/preview?secret=${process.env.PAYLOAD_PREVIEW_SECRET}&slug=${slug}&locale=${locale ?? 'pt'}&token=${token}`
     },
   },
   access: {
