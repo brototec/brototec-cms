@@ -16,7 +16,10 @@ export const Pages: CollectionConfig = {
     defaultColumns: ['title', 'slug', '_status', 'updatedAt'], // Use _status para drafts
   },
   access: {
-    read: () => true,
+    read: () => true, // Público pode ler
+    update: ({ req: { user } }) => Boolean(user), // Só admin edita
+    create: ({ req: { user } }) => Boolean(user),
+    delete: ({ req: { user } }) => Boolean(user),
   },
   fields: [
     {
