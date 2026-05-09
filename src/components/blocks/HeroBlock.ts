@@ -19,5 +19,10 @@ export const HeroBlock: Block = {
       ]
     },
     { name: 'image', type: 'upload', relationTo: 'media', required: true, label: 'Imagem/SVG do Hero' },
+    {
+      name: 'featuredImage',
+      type: 'upload',
+      relationTo: 'media',
+    },
   ],
 }
