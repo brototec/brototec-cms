@@ -5,23 +5,25 @@ import { theme } from '@/themes/broto-default/theme.config'
 import React from 'react'
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-  // 1. Extrai o slug do params (necessário no Next.js 15+)
   const { slug } = await params
   
+  // CRUCIAL: Se o slug for 'home', mandamos para o 404 nesta rota específica,
+  // pois a Home já é tratada pelo arquivo da raiz (page.tsx).
+  if (slug === 'home') notFound()
+
   const payload = await getPayload({ config: await config })
 
   const result = await payload.find({
     collection: 'pages',
     where: {
-      slug: { equals: slug },
+      slug: { equals: slug }, // Aqui ele busca o slug dinâmico (ex: 'contato')
     },
   })
 
   const page = result.docs[0]
 
-  // Se a página não existir ou se alguém tentar acessar /home manualmente, 
-  // retornamos notFound para manter o SEO limpo na raiz.
-  if (!page || slug === 'home') notFound()
+  // Se a página (ex: contato) foi deletada no Payload, aqui ele dará o 404 correto.
+  if (!page) notFound()
 
   return (
     <main>
@@ -43,11 +45,8 @@ export async function generateStaticParams() {
   const pages = await payload.find({
     collection: 'pages',
     limit: 100,
-    // Filtro: não gera páginas estáticas para o slug 'home' nesta rota dinâmica
     where: {
-      slug: {
-        not_equals: 'home',
-      },
+      slug: { not_equals: 'home' }, // Não gera a rota /home no build
     },
   })
 
