@@ -14,6 +14,11 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', '_status', 'updatedAt'], // Use _status para drafts
+    preview: (doc) => {
+      return `${process.env.NEXT_PUBLIC_SERVER_URL}/api/preview?url=${encodeURIComponent(
+        `/${doc.slug === 'home' ? '' : doc.slug}`
+      )}&secret=${process.env.PAYLOAD_PREVIEW_SECRET}`
+    },
   },
   access: {
     read: () => true, // Público pode ler
