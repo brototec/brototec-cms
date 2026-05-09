@@ -5,7 +5,7 @@ import { theme } from '@/themes/broto-default/theme.config'
 import React from 'react'
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-  // 1. Extrai o slug do params (await necessário no Next 15/16)
+  // 1. Extrai o slug do params (necessário no Next.js 15+)
   const { slug } = await params
   
   const payload = await getPayload({ config: await config })
@@ -19,7 +19,9 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
   const page = result.docs[0]
 
-  if (!page) notFound()
+  // Se a página não existir ou se alguém tentar acessar /home manualmente, 
+  // retornamos notFound para manter o SEO limpo na raiz.
+  if (!page || slug === 'home') notFound()
 
   return (
     <main>
@@ -41,8 +43,13 @@ export async function generateStaticParams() {
   const pages = await payload.find({
     collection: 'pages',
     limit: 100,
+    // Filtro: não gera páginas estáticas para o slug 'home' nesta rota dinâmica
+    where: {
+      slug: {
+        not_equals: 'home',
+      },
+    },
   })
 
-  
   return pages.docs.map((page) => ({ slug: page.slug }))
 }
